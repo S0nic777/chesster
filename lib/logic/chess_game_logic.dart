@@ -53,4 +53,9 @@ class ChessGameLogic {
   void undo() {
     _game.undo();
   }
+
+  /// Returns the history of moves in Standard Algebraic Notation (SAN).
+  List<String> get sanHistory {
+    return _game.history.map((m) => m.san).toList();
+  }
 }

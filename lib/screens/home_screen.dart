@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/chess_board.dart';
+import '../widgets/move_history_bar.dart';
 import '../providers/game_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -24,6 +25,7 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             children: [
               _buildHeader(ref),
+              const MoveHistoryBar(),
               Expanded(
                 child: Center(
                   child: Column(

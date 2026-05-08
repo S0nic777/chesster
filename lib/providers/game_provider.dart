@@ -72,6 +72,7 @@ class GameNotifier extends Notifier<GameState> {
         winner: _logic.winner,
         selectedSquare: null,
         legalMoves: [],
+        history: _logic.sanHistory,
       );
     }
   }
@@ -82,10 +83,14 @@ class GameNotifier extends Notifier<GameState> {
       fen: _logic.fen,
       isWhiteTurn: _logic.isWhiteTurn,
       isGameOver: _logic.isGameOver,
+      history: [],
     );
   }
 }
 
 final gameProvider = NotifierProvider<GameNotifier, GameState>(() {
+  return GameNotifier();
+});
+erProvider<GameNotifier, GameState>(() {
   return GameNotifier();
 });
