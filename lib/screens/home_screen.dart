@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/chess_board.dart';
 import '../providers/game_provider.dart';
@@ -11,72 +12,174 @@ class HomeScreen extends ConsumerWidget {
     final gameState = ref.watch(gameProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      appBar: AppBar(
-        title: const Text('Chesster Arena'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(gameProvider.notifier).reset(),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
           ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Opponent Info
-            _buildPlayerInfo('Opponent', 1200, isTop: true),
-            
-            const SizedBox(height: 20),
-            
-            // The Interactive Board
-            ChessBoard(
-              size: MediaQuery.of(context).size.width * 0.95,
-              lightSquareColor: const Color(0xFFE2E8F0),
-              darkSquareColor: const Color(0xFF475569),
-            ),
-            
-            const SizedBox(height: 20),
-            
-            // User Info
-            _buildPlayerInfo('You', 1250, isTop: false),
-
-            if (gameState.isGameOver)
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: Text(
-                  'Game Over! ${gameState.winner} wins.',
-                  style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(ref),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildPlayerCard('Opponent', 1200, isOpponent: true),
+                      const SizedBox(height: 32),
+                      ChessBoard(
+                        size: MediaQuery.of(context).size.width * 0.95,
+                        lightSquareColor: const Color(0xFF334155),
+                        darkSquareColor: const Color(0xFF1E293B),
+                      ).animate().scale(duration: 600.ms, curve: Curves.outBack),
+                      const SizedBox(height: 32),
+                      _buildPlayerCard('You', 1250, isOpponent: false),
+                      
+                      if (gameState.isGameOver)
+                        Container(
+                          margin: const EdgeInsets.only(top: 24),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: Colors.blue.withOpacity(0.5)),
+                          ),
+                          child: Text(
+                            'GAME OVER • ${gameState.winner?.toUpperCase()} WINS',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ).animate().fadeIn().moveY(begin: 10, end: 0),
+                    ],
+                  ),
                 ),
               ),
-          ],
+              _buildControlBar(ref),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPlayerInfo(String name, int elo, {required bool isTop}) {
+  Widget _buildHeader(WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
       child: Row(
-        mainAxisAlignment: isTop ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (!isTop) const CircleAvatar(child: Icon(Icons.person)),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: isTop ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            children: [
-              Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              Text('$elo Elo', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-            ],
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70, size: 20),
+            onPressed: () {},
           ),
-          const SizedBox(width: 12),
-          if (isTop) const CircleAvatar(child: Icon(Icons.computer)),
+          const Text(
+            'CHESSTER ARENA',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 4,
+              fontSize: 12,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: Colors.white70, size: 20),
+            onPressed: () {},
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPlayerCard(String name, int elo, {required bool isOpponent}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        children: [
+          if (!isOpponent) ...[
+            _buildAvatar(isOpponent),
+            const SizedBox(width: 12),
+          ],
+          Column(
+            crossAxisAlignment: isOpponent ? CrossAxisAlignment.start : CrossAxisAlignment.start,
+            children: [
+              Text(
+                name.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 14,
+                  letterSpacing: 1,
+                ),
+              ),
+              Text(
+                '$elo ELO',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          if (isOpponent) ...[
+            const SizedBox(width: 12),
+            _buildAvatar(isOpponent),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar(bool isOpponent) {
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: isOpponent ? Colors.redAccent : Colors.blueAccent, width: 2),
+      ),
+      child: CircleAvatar(
+        radius: 18,
+        backgroundColor: Colors.white.withOpacity(0.1),
+        child: Icon(
+          isOpponent ? Icons.smart_toy_outlined : Icons.person_outline_rounded,
+          size: 18,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildControlBar(WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 32),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.03),
+        border: const Border(top: BorderSide(color: Colors.white10)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildControlIcon(Icons.flag_outlined, () {}),
+          _buildControlIcon(Icons.undo_rounded, () {}),
+          _buildControlIcon(Icons.refresh_rounded, () => ref.read(gameProvider.notifier).reset()),
+          _buildControlIcon(Icons.chat_bubble_outline_rounded, () {}),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildControlIcon(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Icon(icon, color: Colors.white.withOpacity(0.6), size: 24),
     );
   }
 }

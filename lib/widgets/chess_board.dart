@@ -11,8 +11,8 @@ class ChessBoard extends ConsumerWidget {
   const ChessBoard({
     super.key,
     required this.size,
-    this.lightSquareColor = const Color(0xFFF0D9B5),
-    this.darkSquareColor = const Color(0xFFB58863),
+    this.lightSquareColor = const Color(0xFFE2E8F0),
+    this.darkSquareColor = const Color(0xFF475569),
   });
 
   @override
@@ -23,66 +23,82 @@ class ChessBoard extends ConsumerWidget {
     return Container(
       width: size,
       height: size,
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 2),
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 8,
-        ),
-        itemCount: 64,
-        itemBuilder: (context, index) {
-          int row = index ~/ 8;
-          int col = index % 8;
-          String square = '${String.fromCharCode(97 + col)}${8 - row}';
-          bool isLight = (row + col) % 2 == 0;
-          String? piece = boardData[square];
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 8,
+          ),
+          itemCount: 64,
+          itemBuilder: (context, index) {
+            int row = index ~/ 8;
+            int col = index % 8;
+            String square = '${String.fromCharCode(97 + col)}${8 - row}';
+            bool isLight = (row + col) % 2 == 0;
+            String? piece = boardData[square];
 
-          bool isSelected = gameState.selectedSquare == square;
-          bool isLegalMove = gameState.legalMoves.contains(square);
+            bool isSelected = gameState.selectedSquare == square;
+            bool isLegalMove = gameState.legalMoves.contains(square);
 
-          return GestureDetector(
-            onTap: () => ref.read(gameProvider.notifier).selectSquare(square),
-            child: Container(
-              color: isSelected 
-                  ? Colors.yellow.withOpacity(0.5) 
-                  : (isLight ? lightSquareColor : darkSquareColor),
-              child: Stack(
-                children: [
-                  if (piece != null)
-                    Center(
-                      child: _getPieceWidget(piece),
-                    ),
-                  if (isLegalMove)
-                    Center(
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.2),
-                          shape: BoxShape.circle,
+            return GestureDetector(
+              onTap: () => ref.read(gameProvider.notifier).selectSquare(square),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isSelected 
+                      ? Colors.blue.withOpacity(0.4) 
+                      : (isLight ? lightSquareColor : darkSquareColor),
+                  border: isSelected ? Border.all(color: Colors.blue, width: 2) : null,
+                ),
+                child: Stack(
+                  children: [
+                    if (piece != null)
+                      Center(
+                        child: _getPieceWidget(piece),
+                      ),
+                    if (isLegalMove)
+                      Center(
+                        child: Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: piece != null ? Colors.red.withOpacity(0.4) : Colors.black.withOpacity(0.15),
+                            shape: BoxShape.circle,
+                            border: piece != null ? Border.all(color: Colors.red, width: 2) : null,
+                          ),
                         ),
                       ),
-                    ),
-                  // Coordinate labels
-                  if (col == 0)
-                    Positioned(
-                      left: 2,
-                      top: 2,
-                      child: Text('${8 - row}', style: TextStyle(fontSize: 8, color: isLight ? darkSquareColor : lightSquareColor)),
-                    ),
-                  if (row == 7)
-                    Positioned(
-                      right: 2,
-                      bottom: 2,
-                      child: Text(String.fromCharCode(97 + col), style: TextStyle(fontSize: 8, color: isLight ? darkSquareColor : lightSquareColor)),
-                    ),
-                ],
+                    // Elegant Coordinate labels
+                    if (col == 0)
+                      Positioned(
+                        left: 2,
+                        top: 2,
+                        child: Text('${8 - row}', style: TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: isLight ? darkSquareColor.withOpacity(0.5) : lightSquareColor.withOpacity(0.5))),
+                      ),
+                    if (row == 7)
+                      Positioned(
+                        right: 2,
+                        bottom: 2,
+                        child: Text(String.fromCharCode(97 + col), style: TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: isLight ? darkSquareColor.withOpacity(0.5) : lightSquareColor.withOpacity(0.5))),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -124,10 +140,17 @@ class ChessBoard extends ConsumerWidget {
     
     return SvgPicture.asset(
       assetPath,
-      width: size / 9,
-      height: size / 9,
-      // Fallback if SVG missing
-      placeholderBuilder: (context) => Text(code, style: const TextStyle(fontWeight: FontWeight.bold)),
+      width: size / 10, // Increased size slightly for better visibility
+      height: size / 10,
+      fit: BoxFit.contain,
+      placeholderBuilder: (context) => Text(
+        code, 
+        style: TextStyle(
+          color: color == 'white' ? Colors.white : Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 24,
+        )
+      ),
     );
   }
 }

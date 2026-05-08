@@ -37,14 +37,17 @@ class GameState {
   }
 }
 
-class GameNotifier extends StateNotifier<GameState> {
+class GameNotifier extends Notifier<GameState> {
   final ChessGameLogic _logic = ChessGameLogic();
 
-  GameNotifier() : super(GameState(
-    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    isWhiteTurn: true,
-    isGameOver: false,
-  ));
+  @override
+  GameState build() {
+    return GameState(
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      isWhiteTurn: true,
+      isGameOver: false,
+    );
+  }
 
   void selectSquare(String square) {
     if (state.selectedSquare == square) {
@@ -83,6 +86,6 @@ class GameNotifier extends StateNotifier<GameState> {
   }
 }
 
-final gameProvider = StateNotifierProvider<GameNotifier, GameState>((ref) {
+final gameProvider = NotifierProvider<GameNotifier, GameState>(() {
   return GameNotifier();
 });
