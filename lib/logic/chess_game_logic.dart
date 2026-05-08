@@ -56,6 +56,13 @@ class ChessGameLogic {
 
   /// Returns the history of moves in Standard Algebraic Notation (SAN).
   List<String> get sanHistory {
-    return _game.history.map((m) => m.san).toList();
+    // PGN format is "1. e4 e5 2. Nf3 Nc6 ..."
+    // We want a list: ["e4", "e5", "Nf3", "Nc6"]
+    final pgn = _game.pgn();
+    if (pgn.isEmpty) return [];
+    
+    // Remove move numbers like "1. ", "2. ", etc.
+    final moveParts = pgn.replaceAll(RegExp(r'\d+\.\s+'), '').split(RegExp(r'\s+'));
+    return moveParts.where((s) => s.isNotEmpty).toList();
   }
 }

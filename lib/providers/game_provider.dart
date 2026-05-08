@@ -8,6 +8,7 @@ class GameState {
   final String? winner;
   final String? selectedSquare;
   final List<String> legalMoves;
+  final List<String> history;
 
   GameState({
     required this.fen,
@@ -16,6 +17,7 @@ class GameState {
     this.winner,
     this.selectedSquare,
     this.legalMoves = const [],
+    this.history = const [],
   });
 
   GameState copyWith({
@@ -25,6 +27,7 @@ class GameState {
     String? winner,
     String? selectedSquare,
     List<String>? legalMoves,
+    List<String>? history,
   }) {
     return GameState(
       fen: fen ?? this.fen,
@@ -33,6 +36,7 @@ class GameState {
       winner: winner ?? this.winner,
       selectedSquare: selectedSquare,
       legalMoves: legalMoves ?? this.legalMoves,
+      history: history ?? this.history,
     );
   }
 }
@@ -89,8 +93,5 @@ class GameNotifier extends Notifier<GameState> {
 }
 
 final gameProvider = NotifierProvider<GameNotifier, GameState>(() {
-  return GameNotifier();
-});
-erProvider<GameNotifier, GameState>(() {
   return GameNotifier();
 });

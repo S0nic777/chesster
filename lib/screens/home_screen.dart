@@ -37,7 +37,7 @@ class HomeScreen extends ConsumerWidget {
                         size: MediaQuery.of(context).size.width * 0.95,
                         lightSquareColor: const Color(0xFF334155),
                         darkSquareColor: const Color(0xFF1E293B),
-                      ).animate().scale(duration: 600.ms, curve: Curves.outBack),
+                      ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
                       const SizedBox(height: 32),
                       _buildPlayerCard('You', 1250, isOpponent: false),
                       
