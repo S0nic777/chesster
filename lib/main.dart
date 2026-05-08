@@ -7,6 +7,8 @@ import 'screens/home_screen.dart';
 import 'screens/competitions_screen.dart';
 import 'screens/matchmaking_screen.dart';
 import 'screens/tie_breaker_screen.dart';
+import 'screens/splash_screen.dart';
+import 'screens/bot_selection_screen.dart';
 
 const String supabaseUrl = 'YOUR_SUPABASE_URL';
 const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
@@ -31,11 +33,19 @@ void main() async {
 }
 
 final _router = GoRouter(
-  initialLocation: '/auth',
+  initialLocation: '/',
   routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SplashScreen(),
+    ),
     GoRoute(
       path: '/auth',
       builder: (context, state) => const AuthScreen(),
+    ),
+    GoRoute(
+      path: '/bot-selection',
+      builder: (context, state) => const BotSelectionScreen(),
     ),
     GoRoute(
       path: '/home',
