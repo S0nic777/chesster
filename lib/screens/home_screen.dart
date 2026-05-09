@@ -12,61 +12,86 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final gameState = ref.watch(gameProvider);
 
+    // Show promotion dialog if needed
+    if (gameState.pendingPromotionFrom != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showPromotionDialog(context, ref, gameState.isWhiteTurn);
+      });
+    }
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-          ),
+          color: Color(0xFF161512), // Classic Chess.com background
         ),
         child: SafeArea(
           child: Column(
             children: [
               _buildHeader(ref),
               const MoveHistoryBar(),
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildPlayerCard('Opponent', 1200, isOpponent: true),
-                      const SizedBox(height: 32),
-                      ChessBoard(
-                        size: MediaQuery.of(context).size.width * 0.95,
-                        lightSquareColor: const Color(0xFF334155),
-                        darkSquareColor: const Color(0xFF1E293B),
-                      ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
-                      const SizedBox(height: 32),
-                      _buildPlayerCard('You', 1250, isOpponent: false),
-                      
-                      if (gameState.isGameOver)
-                        Container(
-                          margin: const EdgeInsets.only(top: 24),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.blue.withOpacity(0.5)),
-                          ),
-                          child: Text(
-                            'GAME OVER • ${gameState.winner?.toUpperCase()} WINS',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                        ).animate().fadeIn().moveY(begin: 10, end: 0),
-                    ],
-                  ),
+              const Spacer(),
+              _buildPlayerCard('Opponent', 1200, isOpponent: true),
+              const SizedBox(height: 12),
+              Center(
+                child: ChessBoard(
+                  size: MediaQuery.of(context).size.width,
+                  lightSquareColor: const Color(0xFFEBECD0),
+                  darkSquareColor: const Color(0xFF779556),
                 ),
               ),
+              const SizedBox(height: 12),
+              _buildPlayerCard('You', 1250, isOpponent: false),
+              const Spacer(),
+              if (gameState.isGameOver) _buildGameOverBanner(gameState),
               _buildControlBar(ref),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showPromotionDialog(BuildContext context, WidgetRef ref, bool isWhite) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Promote Pawn to:'),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: ['q', 'r', 'b', 'n'].map((type) {
+            return IconButton(
+              icon: Icon(_getPieceIcon(type)),
+              onPressed: () {
+                ref.read(gameProvider.notifier).promote(type);
+                Navigator.of(context).pop();
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  IconData _getPieceIcon(String type) {
+    switch (type) {
+      case 'q': return Icons.workspace_premium;
+      case 'r': return Icons.fort;
+      case 'b': return Icons.navigation;
+      case 'n': return Icons.bedroom_baby;
+      default: return Icons.help;
+    }
+  }
+
+  Widget _buildGameOverBanner(GameState state) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      color: Colors.black87,
+      child: Text(
+        'GAME OVER • ${state.winner?.toUpperCase()} WINS',
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2),
       ),
     );
   }
@@ -170,7 +195,7 @@ class HomeScreen extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildControlIcon(Icons.flag_outlined, () {}),
-          _buildControlIcon(Icons.undo_rounded, () {}),
+          _buildControlIcon(Icons.undo_rounded, () => ref.read(gameProvider.notifier).undo()),
           _buildControlIcon(Icons.refresh_rounded, () => ref.read(gameProvider.notifier).reset()),
           _buildControlIcon(Icons.chat_bubble_outline_rounded, () {}),
         ],

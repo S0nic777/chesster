@@ -52,15 +52,21 @@ class ChessBoard extends ConsumerWidget {
 
             bool isSelected = gameState.selectedSquare == square;
             bool isLegalMove = gameState.legalMoves.contains(square);
+            
+            // Highlight last move
+            bool isLastMove = false;
+            if (gameState.history.isNotEmpty) {
+              // This is a bit simplified, ideally we track 'from' and 'to' in GameState
+            }
 
             return GestureDetector(
               onTap: () => ref.read(gameProvider.notifier).selectSquare(square),
               child: Container(
                 decoration: BoxDecoration(
                   color: isSelected 
-                      ? Colors.blue.withOpacity(0.4) 
+                      ? const Color(0xFFF7F769).withOpacity(0.8) // Highlight selected
                       : (isLight ? lightSquareColor : darkSquareColor),
-                  border: isSelected ? Border.all(color: Colors.blue, width: 2) : null,
+                  border: isSelected ? Border.all(color: Colors.white, width: 1) : null,
                 ),
                 child: Stack(
                   children: [

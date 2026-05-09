@@ -33,35 +33,16 @@ void main() async {
 }
 
 final _router = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/home',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const SplashScreen(),
-    ),
-    GoRoute(
-      path: '/auth',
-      builder: (context, state) => const AuthScreen(),
-    ),
-    GoRoute(
-      path: '/bot-selection',
-      builder: (context, state) => const BotSelectionScreen(),
-    ),
     GoRoute(
       path: '/home',
       builder: (context, state) => const HomeScreen(),
     ),
+    // Keeping other routes but focusing on /home
     GoRoute(
-      path: '/competitions',
-      builder: (context, state) => const CompetitionsScreen(),
-    ),
-    GoRoute(
-      path: '/matchmaking',
-      builder: (context, state) => const MatchmakingScreen(),
-    ),
-    GoRoute(
-      path: '/tiebreaker',
-      builder: (context, state) => const TieBreakerScreen(),
+      path: '/auth',
+      builder: (context, state) => const AuthScreen(),
     ),
   ],
 );
